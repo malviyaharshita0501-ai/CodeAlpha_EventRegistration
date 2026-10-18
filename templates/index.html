@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            margin: 0;
+            color: #263247;
+        }
+        header {
+            background: #243b67;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #00000012;
+        }
+        input, textarea, button {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        button {
+            background: #3159a5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .event {
+            border: 1px solid #ddd;
+            padding: 18px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        a {
+            color: #3159a5;
+        }
+        .message {
+            background: #e4f6e9;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Event Registration System</h1>
+    <p>Create events and register online!</p>
+</header>
+
+<main>
+
+    <section class="card">
+        <h2>Create a New Event</h2>
+
+        <form action="{{ url_for('create_event') }}" method="POST">
+            <input type="text" name="name" placeholder="Event Name" required>
+            <input type="date" name="date" required>
+            <input type="time" name="time" required>
+            <textarea name="description" placeholder="Event Description"></textarea>
+            <button type="submit">Create Event</button>
+        </form>
+    </section>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="card">
+        <h2>Available Events</h2>
+
+        {% if events %}
+            {% for event in events %}
+                <div class="event">
+                    <h3>{{ event.name }}</h3>
+                    <p><strong>Date:</strong> {{ event.date }}</p>
+                    <p><strong>Time:</strong> {{ event.time }}</p>
+                    <p>{{ event.description or "No description provided." }}</p>
+                    <p><strong>Registrations:</strong> {{ event.participant_count }}</p>
+
+                    <h4>Register for this Event</h4>
+                    <form action="{{ url_for('register', event_id=event.id) }}" method="POST">
+                        <input type="text" name="participant_name" placeholder="Your Full Name" required>
+                        <input type="email" name="email" placeholder="Your Email" required>
+                        <button type="submit">Register Now</button>
+                    </form>
+
+                    <p>
+                        <a href="{{ url_for('view_registrations', event_id=event.id) }}">
+                            View Participants
+                        </a>
+                    </p>
+
+                    <h4>Cancel Registration</h4>
+                    <form action="{{ url_for('cancel_registration', event_id=event.id) }}" method="POST">
+                        <input type="email" name="email" placeholder="Registered Email" required>
+                        <button type="submit">Cancel Registration</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No events available yet. Create your first event above!</p>
+        {% endif %}
+    </section>
+
+</main>
+
+</body>
+</html>
